@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import javax.swing.*;
 import java.io.PrintStream;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -22,17 +23,44 @@ public class JMtraceMethodAdapter extends MethodVisitor{
     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
         switch (opcode){
             case GETSTATIC:  {
+                /*
+                    ...,-->
+                    ...,value -->
+                 */
                 super.visitFieldInsn(opcode, owner, name, descriptor);
-                mtracer.traceStaticRead(mv,owner + "." + name, descriptor);
+                mtracer.traceStatic(mv, "R", owner + "." + name, descriptor);
                 break;
             }
             case PUTSTATIC:  {
-                mtracer.traceStaticWrite(mv, owner + "." + name, descriptor);
+                /*
+                    ...,value -->
+                    ...,-->
+                 */
+                mtracer.traceStatic(mv, "W", owner + "." + name, descriptor);
                 super.visitFieldInsn(opcode, owner, name, descriptor);
                 break;
             }
-            case GETFIELD:  super.visitFieldInsn(opcode, owner, name, descriptor);  break;
-            case PUTFIELD:  super.visitFieldInsn(opcode, owner, name, descriptor);  break;
+            case GETFIELD:  {
+                /*
+                    ...,objectref -->
+                    ...,value -->
+                 */
+                mtracer.traceField(mv, "R", owner + "." + name);
+                super.visitFieldInsn(opcode, owner, name, descriptor);
+                break;
+            }
+            case PUTFIELD: {
+                /*
+                    ...,objectref, value -->
+                    ...,-->
+                 */
+                mv.visitInsn(DUP2);
+                mv.visitInsn(POP);
+                mtracer.traceField(mv, "W", owner + "." + name);
+                mv.visitInsn(POP);
+                super.visitFieldInsn(opcode, owner, name, descriptor);
+                break;
+            }
             default: super.visitFieldInsn(opcode, owner, name, descriptor);  break;
         }
 
