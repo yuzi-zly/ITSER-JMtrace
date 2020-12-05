@@ -1,9 +1,5 @@
 package com.JMTRACE.Mtracer;
 
-import java.text.Format;
-import java.util.Formattable;
-import java.util.Formatter;
-
 import static org.objectweb.asm.Opcodes.*;
 
 public class mtracer {

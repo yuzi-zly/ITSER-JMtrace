@@ -3,11 +3,6 @@ package com.JMTRACE.Asm;
 import com.JMTRACE.Mtracer.mtracer;
 import org.objectweb.asm.*;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.LineNumberReader;
-import java.io.PrintStream;
-
 import static org.objectweb.asm.Opcodes.*;
 
 public class JMtraceMethodAdapter extends MethodVisitor{

@@ -1,16 +1,16 @@
 package com.JMTRACE.Instrument;
 
 import com.JMTRACE.Asm.JMtraceClassAdapter;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
 
 
@@ -37,7 +37,7 @@ public class JMtraceAgent{
             classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
             byte[] result = classWriter.toByteArray();
 
-            File file = new File(PATH + "Output.class");
+            File file = new File(PATH + className + ".class");
             try {
                 FileOutputStream outputStream = new FileOutputStream(file);
                 outputStream.write(result);

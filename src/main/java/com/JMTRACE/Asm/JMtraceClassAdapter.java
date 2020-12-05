@@ -2,8 +2,6 @@ package com.JMTRACE.Asm;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import java.awt.*;
-
 public class JMtraceClassAdapter extends ClassVisitor {
 
     public JMtraceClassAdapter(int i, ClassVisitor classVisitor) {
