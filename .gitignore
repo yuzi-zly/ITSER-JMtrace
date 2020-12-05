@@ -1,10 +1,10 @@
 .DS_Store
 .idea
 build
-!gradle
-!gradlew*
-!settings.gradle
+gradle
+gradlew*
+settings.gradle
 !src
 !libs
-!build.gradle
+build.gradle
 !Makefile
