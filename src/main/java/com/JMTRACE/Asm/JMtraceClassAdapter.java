@@ -2,8 +2,9 @@ package com.JMTRACE.Asm;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
+import java.awt.*;
+
 public class JMtraceClassAdapter extends ClassVisitor {
-    private String className;
 
     public JMtraceClassAdapter(int i, ClassVisitor classVisitor) {
         super(i, classVisitor);
@@ -14,7 +15,12 @@ public class JMtraceClassAdapter extends ClassVisitor {
                                      String signature, String[] exceptions) {
         //cv is writer
         MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
-        return new JMtraceMethodAdapter(api, methodVisitor, access, name, desc, this.className);
+        if(name.equals("mtraceStatic") || name.equals("mtraceField") || name.equals("isALOAD")
+            || name.equals("isASTORE") || name.equals("mtraceALOAD") || name.equals("mtraceASTORE")
+            || name.equals("outputType"))
+            return methodVisitor;
+        else
+            return new JMtraceMethodAdapter(api, methodVisitor, access, name, desc);
 
     }
 }

@@ -1,22 +1,21 @@
 package com.JMTRACE.Asm;
 
 import com.JMTRACE.Mtracer.mtracer;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 
 import javax.swing.*;
+import java.awt.*;
+import java.io.LineNumberReader;
 import java.io.PrintStream;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public class JMtraceMethodAdapter extends MethodVisitor{
-    private final String methodName;
+    public String methodname;
 
-    public JMtraceMethodAdapter(int api, MethodVisitor methodVisitor, int access, String name, String desc, String className) {
+    public JMtraceMethodAdapter(int api, MethodVisitor methodVisitor, int access, String name, String desc) {
         super(api, methodVisitor);
-        this.methodName = name;
+        this.methodname = name;
     }
 
     @Override
@@ -28,7 +27,10 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,value -->
                  */
                 super.visitFieldInsn(opcode, owner, name, descriptor);
-                mtracer.traceStatic(mv, "R", owner + "." + name, descriptor);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn("R");
+                mv.visitLdcInsn(owner+"."+name);
+                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
                 break;
             }
             case PUTSTATIC:  {
@@ -36,7 +38,10 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,value -->
                     ...,-->
                  */
-                mtracer.traceStatic(mv, "W", owner + "." + name, descriptor);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn("W");
+                mv.visitLdcInsn(owner+"."+name);
+                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
                 super.visitFieldInsn(opcode, owner, name, descriptor);
                 break;
             }
@@ -44,8 +49,11 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                 /*
                     ...,objectref -->
                     ...,value -->
-                 */
-                mtracer.traceField(mv, "R", owner + "." + name);
+                */
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn("R");
+                mv.visitLdcInsn(owner+"."+name);
+                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceField", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
                 super.visitFieldInsn(opcode, owner, name, descriptor);
                 break;
             }
@@ -56,8 +64,9 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                  */
                 mv.visitInsn(DUP2);
                 mv.visitInsn(POP);
-                mtracer.traceField(mv, "W", owner + "." + name);
-                mv.visitInsn(POP);
+                mv.visitLdcInsn("W");
+                mv.visitLdcInsn(owner+"."+name);
+                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceField", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
                 super.visitFieldInsn(opcode, owner, name, descriptor);
                 break;
             }
@@ -68,84 +77,27 @@ public class JMtraceMethodAdapter extends MethodVisitor{
 
     @Override
     public void visitInsn(int opcode) {
-        switch (opcode){
-//            case Opcodes.AALOAD:     System.out.println("visit AALOAD");     break;
-//            case Opcodes.BALOAD:     System.out.println("visit BALOAD");     break;
-//            case Opcodes.CALOAD:     System.out.println("visit CALOAD");     break;
-//            case Opcodes.DALOAD:     System.out.println("visit DALOAD");     break;
-//            case Opcodes.FALOAD:     System.out.println("visit FALOAD");     break;
-//            case Opcodes.IALOAD:     System.out.println("visit IALOAD");     break;
-//            case Opcodes.LALOAD:     System.out.println("visit LALOAD");     break;
-//            case Opcodes.SALOAD:     System.out.println("visit SALOAD");     break;
-//
-//            case Opcodes.AASTORE:    System.out.println("visit AASTORE");    break;
-//            case Opcodes.BASTORE:    System.out.println("visit BASTORE");    break;
-//            case Opcodes.CASTORE:    System.out.println("visit CASTORE");    break;
-//            case Opcodes.DASTORE:    System.out.println("visit DASTORE");    break;
-//            case Opcodes.FASTORE:    System.out.println("visit FASTORE");    break;
-//            case Opcodes.IASTORE:    System.out.println("visit IASTORE");    break;
-//            case Opcodes.LASTORE:    System.out.println("visit LASTORE");    break;
-//            case Opcodes.SASTORE:    System.out.println("visit SASTORE");    break;
-            default:                                                         break;
+        if(mtracer.isALOAD(opcode)){
+            /*
+                ...,arrayref, index -->
+                ...,value
+             */
+            mv.visitInsn(DUP2);
+            mv.visitLdcInsn("R");
+            mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceALOAD", "(Ljava/lang/Object;ILjava/lang/String;)V", false);
+        }
+        else if(mtracer.isASTORE(opcode)){
+            /*
+                ...,arrayref, index, value -->
+                ...,-->
+             */
+            mv.visitInsn(DUP_X2);
+            mv.visitInsn(POP);
+            mv.visitInsn(DUP2_X1);
+            mv.visitLdcInsn("W");
+            mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceASTORE", "(Ljava/lang/Object;ILjava/lang/String;)V", false);
         }
         super.visitInsn(opcode);
     }
 
-
-    /*
-        Opcode:
-            new
-            anewarray
-     */
-    @Override
-    public void visitTypeInsn(int opcode, String type) {
-        super.visitTypeInsn(opcode, type);
-        if(opcode == Opcodes.NEW){
-            //System.out.println(type);
-        }
-        else if(opcode == Opcodes.ANEWARRAY){
-            //System.out.println(type);
-        }
-    }
-
-
-    /*
-            Opcode:
-                newarray
-    */
-    @Override
-    public void visitIntInsn(int opcode, int operand) {
-        super.visitIntInsn(opcode, operand);
-        if(opcode == Opcodes.NEWARRAY){
-            switch (operand){
-//                case Opcodes.T_BOOLEAN:     System.out.println("New Boolean array");        break;
-//                case Opcodes.T_FLOAT:       System.out.println("New FLOAT array");          break;
-//                case Opcodes.T_DOUBLE:      System.out.println("New DOUBLE array");         break;
-//                case Opcodes.T_BYTE:        System.out.println("New BYTE array");           break;
-//                case Opcodes.T_SHORT:       System.out.println("New SHORT array");          break;
-//                case Opcodes.T_INT:         System.out.println("New INT array");            break;
-//                case Opcodes.T_LONG:        System.out.println("New LONG array");           break;
-                default:                                                                    break;
-            }
-        }
-    }
-
-
-
-    private static void hack(MethodVisitor mv, String msg) {
-        mv.visitFieldInsn(
-                GETSTATIC,
-                Type.getInternalName(System.class),
-                "out",
-                Type.getDescriptor(PrintStream.class)
-        );
-        mv.visitLdcInsn(msg);
-        mv.visitMethodInsn(
-                INVOKEVIRTUAL,
-                Type.getInternalName(PrintStream.class),
-                "println",
-                "(Ljava/lang/String;)V",
-                false
-        );
-    }
 }

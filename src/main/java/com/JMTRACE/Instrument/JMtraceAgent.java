@@ -25,7 +25,6 @@ public class JMtraceAgent{
     static class DefineTransformer implements ClassFileTransformer {
         @Override
         public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-
             if(className.length() >= 5){
                 if (className.startsWith("java/") || className.startsWith("jdk/") || className.startsWith("sun/")) {
                     return classfileBuffer;

@@ -1,104 +1,84 @@
 package com.JMTRACE.Mtracer;
 
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.MethodVisitor;
+import java.text.Format;
+import java.util.Formattable;
+import java.util.Formatter;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public class mtracer {
-
-    private static void getObjectTypeHashCode(MethodVisitor mv){
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I", false);
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "toHexString", "(I)Ljava/lang/String;", false);
-        mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(Ljava/lang/String;)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false), "\u0001 ");
+    public static boolean isALOAD(int opcode){
+        return opcode == AALOAD || opcode == BALOAD || opcode == CALOAD || opcode == DALOAD
+                || opcode == FALOAD || opcode == IALOAD || opcode == LALOAD || opcode == SALOAD;
     }
 
-    private static void getBaseTypeHashcode(MethodVisitor mv, String descriptor){
-        switch (descriptor){
-            case "Z":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-                break;
-            case "C":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Char", "valueOf", "(C)Ljava/lang/Char;", false);
-                break;
-            case "B":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
-                break;
-            case "S":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
-                break;
-            case "I":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-                break;
-            case "F":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
-                break;
-            case "J":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-                break;
-            case "D":
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-                break;
-            default: System.err.println("jmtrace: Error 'Unknow Base descriptor " + descriptor + "'."); break;
-        }
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I", false);
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "toHexString", "(I)Ljava/lang/String;", false);
-        mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(Ljava/lang/String;)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false), "\u0001 ");
+    public static boolean isASTORE(int opcode){
+        return opcode == AASTORE || opcode == BASTORE || opcode == CASTORE || opcode == DASTORE
+                || opcode == FASTORE || opcode == IASTORE || opcode == LASTORE || opcode == SASTORE;
     }
 
-    public static void traceStatic(MethodVisitor mv, String R_W, String ownername, String descriptor){
-        /*  打印W，ThreadID */
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Thread", "getId", "()J", false);
-        mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(J)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false), R_W+" \u0001 ");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
-
-        /* 打印 hashcode */
-        mv.visitInsn(DUP);
-        if(descriptor.startsWith("[") || descriptor.startsWith("L")){
-            /* Arrays or Object */
-            getObjectTypeHashCode(mv);
+    public static void outputType(String typestr){
+        if(typestr.length() == 1){
+            switch (typestr){
+                case "Z" :     System.out.print("boolean");    break;
+                case "C" :     System.out.print("char");       break;
+                case "B" :     System.out.print("byte");       break;
+                case "S" :     System.out.print("short");      break;
+                case "I" :     System.out.print("int");        break;
+                case "F" :     System.out.print("float");      break;
+                case "J" :     System.out.print("long");       break;
+                case "D" :     System.out.print("double");     break;
+                default  :                                     break;
+            }
         }
-        else{
-            /* Base Type */
-            getBaseTypeHashcode(mv, descriptor);
+        else {
+            System.out.print(typestr.substring(1, typestr.length() - 1));
         }
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitInsn(DUP_X1);
-        mv.visitInsn(POP);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
-
-        /* 打印 ownername */
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn(ownername);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
     }
 
+    public static void mtraceStatic(Object obj, String R_W, String name){
+        System.out.printf("%-5s", R_W);
+        System.out.printf("%s    ", Thread.currentThread().getId());
+        System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
+        System.out.printf("%s\n", name);
+    }
 
-    public static void traceField(MethodVisitor mv, String R_W, String ownername){
-        /*  打印R_W，ThreadID */
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Thread", "getId", "()J", false);
-        mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(J)Ljava/lang/String;",
-                new Handle(H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false), R_W+" \u0001 ");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+    public static void mtraceField(Object obj, String R_W, String name){
+        System.out.printf("%-5s", R_W);
+        System.out.printf("%s    ", Thread.currentThread().getId());
+        System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
+        System.out.printf("%s\n", name);
+    }
 
-        /* 打印 hashcode */
-        mv.visitInsn(DUP);
-        getObjectTypeHashCode(mv);
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitInsn(DUP_X1);
-        mv.visitInsn(POP);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(Ljava/lang/String;)V", false);
+    public static void mtraceALOAD(Object obj, int index, String R_W){
+        System.out.printf("%-5s", R_W);
+        System.out.printf("%s    ", Thread.currentThread().getId());
+        System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
 
-        /* 打印 ownername */
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn(ownername);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+        String info = obj.toString();
+        int dimension = info.lastIndexOf('[');
+        int hash_header = info.indexOf('@');
+        String typestr = info.substring(dimension + 1, hash_header);
+        outputType(typestr);
+        System.out.print("[" + index + "]");
+        for(int i = 0; i < dimension; ++i)
+            System.out.print("[]");
+        System.out.println();
+    }
+
+    public static void mtraceASTORE(Object obj, int index, String R_W){
+        System.out.printf("%-5s", R_W);
+        System.out.printf("%s    ", Thread.currentThread().getId());
+        System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
+
+        String info = obj.toString();
+        int dimension = info.lastIndexOf('[');
+        int hash_header = info.indexOf('@');
+        String typestr = info.substring(dimension + 1, hash_header);
+        outputType(typestr);
+        System.out.print("[" + index + "]");
+        for(int i = 0; i < dimension; ++i)
+            System.out.print("[]");
+        System.out.println();
     }
 }
