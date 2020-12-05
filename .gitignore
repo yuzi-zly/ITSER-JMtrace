@@ -4,7 +4,8 @@ build
 gradle
 gradlew*
 settings.gradle
+build.gradle
+.gradle
 !src
 !libs
-build.gradle
 !Makefile
