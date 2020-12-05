@@ -23,6 +23,7 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                  */
                 super.visitFieldInsn(opcode, owner, name, descriptor);
                 mv.visitInsn(DUP);
+                mtracer.convertBaseType(mv, descriptor);
                 mv.visitLdcInsn("R");
                 mv.visitLdcInsn(owner+"."+name);
                 mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
@@ -34,6 +35,7 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,-->
                  */
                 mv.visitInsn(DUP);
+                mtracer.convertBaseType(mv, descriptor);
                 mv.visitLdcInsn("W");
                 mv.visitLdcInsn(owner+"."+name);
                 mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);

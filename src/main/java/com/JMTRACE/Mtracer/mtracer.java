@@ -1,5 +1,7 @@
 package com.JMTRACE.Mtracer;
 
+import org.objectweb.asm.MethodVisitor;
+
 import static org.objectweb.asm.Opcodes.*;
 
 public class mtracer {
@@ -13,7 +15,39 @@ public class mtracer {
                 || opcode == FASTORE || opcode == IASTORE || opcode == LASTORE || opcode == SASTORE;
     }
 
-    public static synchronized void outputType(String typestr){
+    public static void convertBaseType(MethodVisitor mv, String descriptor){
+        if(descriptor.length() == 1) {
+            switch (descriptor){
+                case "Z" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean",
+                        "valueOf", "(Z)Ljava/lang/Boolean;", false);
+                               break;
+                case "C" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Char",
+                        "valueOf", "(C)Ljava/lang/Char;", false);
+                               break;
+                case "B" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte",
+                        "valueOf", "(B)Ljava/lang/Byte;", false);
+                               break;
+                case "S" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short",
+                        "valueOf", "(S)Ljava/lang/Short;", false);
+                               break;
+                case "I" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer",
+                        "valueOf", "(I)Ljava/lang/Integer;", false);
+                               break;
+                case "F" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float",
+                        "valueOf", "(F)Ljava/lang/Float;", false);
+                               break;
+                case "J" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long",
+                        "valueOf", "(J)Ljava/lang/Long;", false);
+                               break;
+                case "D" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double",
+                        "valueOf", "(D)Ljava/lang/Double;", false);
+                               break;
+                default  :     break;
+            }
+        }
+    }
+
+    private static synchronized void outputType(String typestr){
         if(typestr.length() == 1){
             switch (typestr){
                 case "Z" :     System.out.print("boolean");    break;
