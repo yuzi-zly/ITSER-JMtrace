@@ -13,7 +13,7 @@ public class mtracer {
                 || opcode == FASTORE || opcode == IASTORE || opcode == LASTORE || opcode == SASTORE;
     }
 
-    public static void outputType(String typestr){
+    public static synchronized void outputType(String typestr){
         if(typestr.length() == 1){
             switch (typestr){
                 case "Z" :     System.out.print("boolean");    break;
@@ -32,23 +32,26 @@ public class mtracer {
         }
     }
 
-    public static void mtraceStatic(Object obj, String R_W, String name){
+    public static synchronized void mtraceStatic(Object obj, String R_W, String name){
         System.out.printf("%-5s", R_W);
-        System.out.printf("%s    ", Thread.currentThread().getId());
+        String idstr = String.format("%019d",Thread.currentThread().getId());
+        System.out.printf("%-23s", idstr);
         System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
         System.out.printf("%s\n", name);
     }
 
-    public static void mtraceField(Object obj, String R_W, String name){
+    public static synchronized void mtraceField(Object obj, String R_W, String name){
         System.out.printf("%-5s", R_W);
-        System.out.printf("%s    ", Thread.currentThread().getId());
+        String idstr = String.format("%019d",Thread.currentThread().getId());
+        System.out.printf("%-23s", idstr);
         System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
         System.out.printf("%s\n", name);
     }
 
-    public static void mtraceALOAD(Object obj, int index, String R_W){
+    public static synchronized void mtraceALOAD(Object obj, int index, String R_W){
         System.out.printf("%-5s", R_W);
-        System.out.printf("%s    ", Thread.currentThread().getId());
+        String idstr = String.format("%019d",Thread.currentThread().getId());
+        System.out.printf("%-23s", idstr);
         System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
 
         String info = obj.toString();
@@ -62,9 +65,10 @@ public class mtracer {
         System.out.println();
     }
 
-    public static void mtraceASTORE(Object obj, int index, String R_W){
+    public static synchronized void mtraceASTORE(Object obj, int index, String R_W){
         System.out.printf("%-5s", R_W);
-        System.out.printf("%s    ", Thread.currentThread().getId());
+        String idstr = String.format("%019d",Thread.currentThread().getId());
+        System.out.printf("%-23s", idstr);
         System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
 
         String info = obj.toString();
