@@ -22,11 +22,9 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,value -->
                  */
                 super.visitFieldInsn(opcode, owner, name, descriptor);
-                mv.visitInsn(DUP);
-                mtracer.convertBaseType(mv, descriptor);
                 mv.visitLdcInsn("R");
                 mv.visitLdcInsn(owner+"."+name);
-                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
+                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/String;Ljava/lang/String;)V", false);
                 break;
             }
             case PUTSTATIC:  {
@@ -34,11 +32,9 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,value -->
                     ...,-->
                  */
-                mv.visitInsn(DUP);
-                mtracer.convertBaseType(mv, descriptor);
                 mv.visitLdcInsn("W");
                 mv.visitLdcInsn(owner+"."+name);
-                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
+                mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/String;Ljava/lang/String;)V", false);
                 super.visitFieldInsn(opcode, owner, name, descriptor);
                 break;
             }

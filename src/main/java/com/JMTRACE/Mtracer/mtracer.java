@@ -15,38 +15,6 @@ public class mtracer {
                 || opcode == FASTORE || opcode == IASTORE || opcode == LASTORE || opcode == SASTORE;
     }
 
-    public static void convertBaseType(MethodVisitor mv, String descriptor){
-        if(descriptor.length() == 1) {
-            switch (descriptor){
-                case "Z" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean",
-                        "valueOf", "(Z)Ljava/lang/Boolean;", false);
-                               break;
-                case "C" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Char",
-                        "valueOf", "(C)Ljava/lang/Char;", false);
-                               break;
-                case "B" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte",
-                        "valueOf", "(B)Ljava/lang/Byte;", false);
-                               break;
-                case "S" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short",
-                        "valueOf", "(S)Ljava/lang/Short;", false);
-                               break;
-                case "I" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer",
-                        "valueOf", "(I)Ljava/lang/Integer;", false);
-                               break;
-                case "F" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float",
-                        "valueOf", "(F)Ljava/lang/Float;", false);
-                               break;
-                case "J" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long",
-                        "valueOf", "(J)Ljava/lang/Long;", false);
-                               break;
-                case "D" :     mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double",
-                        "valueOf", "(D)Ljava/lang/Double;", false);
-                               break;
-                default  :     break;
-            }
-        }
-    }
-
     private static synchronized void outputType(String typestr){
         if(typestr.length() == 1){
             switch (typestr){
@@ -66,11 +34,11 @@ public class mtracer {
         }
     }
 
-    public static synchronized void mtraceStatic(Object obj, String R_W, String name){
+    public static synchronized void mtraceStatic(String R_W, String name){
         System.out.printf("%-5s", R_W);
         String idstr = String.format("%019d",Thread.currentThread().getId());
         System.out.printf("%-23s", idstr);
-        System.out.printf("%-12s", Integer.toHexString(System.identityHashCode(obj)));
+        System.out.printf("%-12s", Integer.toHexString(name.hashCode()));
         System.out.printf("%s\n", name);
     }
 
