@@ -17,6 +17,7 @@ default:
 	@echo "make jar: Pack class files in 'com' and manifest.mf in 'src/main' into $(JAR_PKG)"
 	@echo "make run: Run the test jar in directory 'test' with javaagent $(JAR_PKG)"
 	@echo "make clean: Remove $(JAR_PKG), directory 'com' , directory 'output', and manifest.mf in 'src/main'"
+	@echo "The instrumented class files are in directory 'output'"
 
 compile : 
 	@echo "		/==============================		COMPILE		==============================/"
