@@ -15,7 +15,8 @@ import java.security.ProtectionDomain;
 
 
 public class JMtraceAgent{
-    private static final String PATH = "../";
+    //for idea
+    private static final String PATH = "./output/";
 
     public static void premain(String agentArgs, Instrumentation inst)  {
         Class<?>[] cLasses = inst.getAllLoadedClasses();
