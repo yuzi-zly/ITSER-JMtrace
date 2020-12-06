@@ -9,14 +9,14 @@ JAR_PKG = jmtrace.jar
 CLASSPATH = .:libs/asm-9.0-beta.jar 
 RUN_PKG = $(shell find test -name "*.jar")
 
-MANIFESTFILE = src/main/resources/MANIFEST.MF
+MANIFESTFILE = src/main/MANIFEST.MF
 MANIFESTCONST = "Manifest-Version: 1.0\nPremain-Class: com.JMTRACE.Instrument.JMtraceAgent\nCan-Redefine-Classes: true\nCan-Retransform-Classes: true"
 
 default:
 	@echo "make compile: Compile source java files in directory 'src/main/java' into class files in directory 'com'"
-	@echo "make jar: Pack class files in 'com' and manifest.mf in 'src/main/resources' into $(JAR_PKG)"
+	@echo "make jar: Pack class files in 'com' and manifest.mf in 'src/main' into $(JAR_PKG)"
 	@echo "make run: Run the test jar in directory 'test' with javaagent $(JAR_PKG)"
-	@echo "make clean: Remove $(JAR_PKG), directory 'com' , directory 'output', and manifest.mf in 'src/main/resources'"
+	@echo "make clean: Remove $(JAR_PKG), directory 'com' , directory 'output', and manifest.mf in 'src/main'"
 
 compile : 
 	@echo "		/==============================		COMPILE		==============================/"
