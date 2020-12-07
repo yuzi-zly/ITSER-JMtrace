@@ -15,6 +15,7 @@ public class JMtraceMethodAdapter extends MethodVisitor{
 
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+
         switch (opcode){
             case GETSTATIC:  {
                 /*
@@ -32,6 +33,7 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,value -->
                     ...,-->
                  */
+               // System.out.println("MEET PUTSTATIC");
                 mv.visitLdcInsn("W");
                 mv.visitLdcInsn(owner+"."+name);
                 mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceStatic", "(Ljava/lang/String;Ljava/lang/String;)V", false);
@@ -55,8 +57,15 @@ public class JMtraceMethodAdapter extends MethodVisitor{
                     ...,objectref, value -->
                     ...,-->
                  */
-                mv.visitInsn(DUP2);
-                mv.visitInsn(POP);
+                if(descriptor.equals("D") || descriptor.equals("J")){
+                    mv.visitInsn(DUP2_X1);
+                    mv.visitInsn(POP2);
+                    mv.visitInsn(DUP_X2);
+                }
+                else{
+                    mv.visitInsn(DUP2);
+                    mv.visitInsn(POP);
+                }
                 mv.visitLdcInsn("W");
                 mv.visitLdcInsn(owner+"."+name);
                 mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceField", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
@@ -79,7 +88,7 @@ public class JMtraceMethodAdapter extends MethodVisitor{
             mv.visitLdcInsn("R");
             mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceALOAD", "(Ljava/lang/Object;ILjava/lang/String;)V", false);
         }
-        else if(mtracer.isASTORE(opcode)){
+        else if(mtracer.isOtherASTORE(opcode)){
             /*
                 ...,arrayref, index, value -->
                 ...,-->
@@ -87,6 +96,17 @@ public class JMtraceMethodAdapter extends MethodVisitor{
             mv.visitInsn(DUP_X2);
             mv.visitInsn(POP);
             mv.visitInsn(DUP2_X1);
+            mv.visitLdcInsn("W");
+            mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceASTORE", "(Ljava/lang/Object;ILjava/lang/String;)V", false);
+        }
+        else if(opcode == DASTORE || opcode == LASTORE){
+            /*
+                ...,arrayref, index, value(double, long) -->
+                ...,-->
+            */
+            mv.visitInsn(DUP2_X2);
+            mv.visitInsn(POP2);
+            mv.visitInsn(DUP2_X2);
             mv.visitLdcInsn("W");
             mv.visitMethodInsn(INVOKESTATIC, "com/JMTRACE/Mtracer/mtracer", "mtraceASTORE", "(Ljava/lang/Object;ILjava/lang/String;)V", false);
         }

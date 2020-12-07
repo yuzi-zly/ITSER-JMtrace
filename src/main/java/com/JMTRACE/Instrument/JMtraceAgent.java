@@ -16,7 +16,7 @@ import java.security.ProtectionDomain;
 
 public class JMtraceAgent{
     //for idea
-    private static final String PATH = "./output/";
+    private static final String PATH = "../";
 
     public static void premain(String agentArgs, Instrumentation inst)  {
         Class<?>[] cLasses = inst.getAllLoadedClasses();
@@ -36,16 +36,16 @@ public class JMtraceAgent{
             ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
             ClassVisitor classVisitor = new JMtraceClassAdapter(Opcodes.ASM9, classWriter);
             classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
-            byte[] result = classWriter.toByteArray();
-
-            File file = new File(PATH + className + ".class");
-            try {
-                FileOutputStream outputStream = new FileOutputStream(file);
-                outputStream.write(result);
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            byte[] result = classWriter.toByteArray();
+//
+//            File file = new File(PATH + className + ".class");
+//            try {
+//                FileOutputStream outputStream = new FileOutputStream(file);
+//                outputStream.write(result);
+//                outputStream.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
             return classWriter.toByteArray();
         }

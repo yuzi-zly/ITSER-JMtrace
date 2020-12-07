@@ -10,9 +10,9 @@ public class mtracer {
                 || opcode == FALOAD || opcode == IALOAD || opcode == LALOAD || opcode == SALOAD;
     }
 
-    public static boolean isASTORE(int opcode){
-        return opcode == AASTORE || opcode == BASTORE || opcode == CASTORE || opcode == DASTORE
-                || opcode == FASTORE || opcode == IASTORE || opcode == LASTORE || opcode == SASTORE;
+    public static boolean isOtherASTORE(int opcode){
+        return opcode == AASTORE || opcode == BASTORE || opcode == CASTORE
+                || opcode == FASTORE || opcode == IASTORE || opcode == SASTORE;
     }
 
     private static synchronized void outputType(String typestr){
