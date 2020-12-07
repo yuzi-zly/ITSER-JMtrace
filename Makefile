@@ -6,7 +6,7 @@ TMPCLASSFILES = $(shell find com -name "*.class")
 CLASSFILES = $(subst $$,\$$, $(TMPCLASSFILES))
 
 JAR_PKG = jmtrace.jar
-CLASSPATH = .:libs/asm-9.0-beta.jar 
+CLASSPATH = .:libs/asm-9.0.jar 
 RUN_PKG = $(shell find test -name "*.jar")
 
 MANIFESTFILE = src/main/MANIFEST.MF
@@ -25,7 +25,7 @@ compile :
 
 manifest:
 	@echo $(MANIFESTCONST) > $(MANIFESTFILE)
-	@echo "Class-Path: "$(shell pwd)"/libs/asm-9.0-beta.jar" >> $(MANIFESTFILE)
+	@echo "Class-Path: "$(shell pwd)"/libs/asm-9.0.jar" >> $(MANIFESTFILE)
 
 Coutput:
 	mkdir -pv output
